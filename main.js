@@ -4,9 +4,14 @@ function init() {
   const scene = new THREE.Scene();
 
   const box = getBox(1, 1, 1);
+  const plane = getPlane(4);
+
+  box.position.y = box.geometry.parameters.height / 2; //originally 0.5. Remember origin is center.
+  //   plane.rotation.x = 90; //THREE uses pi value
+  plane.rotation.x = Math.PI / 2; //THREE uses pi value
 
   scene.add(box);
-
+  scene.add(plane);
   const camera = new THREE.PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
@@ -26,11 +31,9 @@ function init() {
   renderer.render(scene, camera);
 }
 
-init();
-
 function getBox(w, h, d) {
   //mesh (shape and material) Default is Mesh, which has no reflection on lighting
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.BoxGeometry(w, h, d);
   const material = new THREE.MeshBasicMaterial({
     color: 0x00ff00
   });
@@ -39,3 +42,18 @@ function getBox(w, h, d) {
 
   return mesh;
 }
+
+function getPlane(size) {
+  //mesh (shape and material) Default is Mesh, which has no reflection on lighting
+  const geometry = new THREE.PlaneGeometry(size, size);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+    side: THREE.DoubleSide
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+
+  return mesh;
+}
+
+init();
