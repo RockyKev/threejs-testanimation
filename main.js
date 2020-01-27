@@ -3,6 +3,8 @@
 function init() {
   const scene = new THREE.Scene();
 
+  const gui = new dat.GUI(); //datgui library
+
   var isFogOn = false;
 
   if (isFogOn) {
@@ -20,6 +22,10 @@ function init() {
   //   plane.rotation.x = 90; //THREE uses pi value
   plane.rotation.x = Math.PI / 2; //THREE uses pi value
   pointLight.position.y = 2;
+  pointLight.intensity = 2;
+
+  gui.add(pointLight, "intensity", 0, 10); //variable, method inside, min, and max
+  gui.add(pointLight.position, "y", 0, 5);
 
   //two ways to add objects. One is directly to the scene. The other is through parent->child.
   //   scene.add(box);
@@ -39,6 +45,10 @@ function init() {
   camera.position.x = 1;
   camera.position.y = 2;
   camera.position.z = 5;
+
+  gui.add(camera.position, "x", 0, 100);
+  gui.add(camera.position, "y", 0, 100);
+  gui.add(camera.position, "z", 0, 100);
 
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
