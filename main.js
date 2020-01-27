@@ -6,11 +6,18 @@ function init() {
   const box = getBox(1, 1, 1);
   const plane = getPlane(4);
 
+  plane.name = "plane-1"; //give a name (id) so you can search it with getObjectByName method
+
   box.position.y = box.geometry.parameters.height / 2; //originally 0.5. Remember origin is center.
   //   plane.rotation.x = 90; //THREE uses pi value
   plane.rotation.x = Math.PI / 2; //THREE uses pi value
+  plane.rotation.y = 2;
 
-  scene.add(box);
+  //two ways to add objects. One is directly to the scene. The other is through parent->child.
+  //   scene.add(box);
+  //   plane.add(box);
+
+  plane.add(box);
   scene.add(plane);
   const camera = new THREE.PerspectiveCamera(
     45,
@@ -28,7 +35,9 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   document.getElementById("webgl").appendChild(renderer.domElement);
-  renderer.render(scene, camera);
+  update(renderer, scene, camera);
+
+  return scene;
 }
 
 function getBox(w, h, d) {
@@ -56,4 +65,20 @@ function getPlane(size) {
   return mesh;
 }
 
-init();
+function update(renderer, scene, camera) {
+  renderer.render(scene, camera);
+
+  var plane = scene.getObjectByName("plane-1");
+  plane.rotation.y += 0.001;
+  plane.rotation.z += 0.001;
+
+  scene.traverse(function(child) {
+    child.scale.x += 0.001;
+  });
+
+  requestAnimationFrame(function() {
+    update(renderer, scene, camera);
+  });
+}
+
+var scene = init();
