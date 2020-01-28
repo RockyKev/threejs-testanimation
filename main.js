@@ -45,11 +45,6 @@ function init() {
   camera.position.x = 1;
   camera.position.y = 2;
   camera.position.z = 5;
-
-  gui.add(camera.position, "x", 0, 100);
-  gui.add(camera.position, "y", 0, 100);
-  gui.add(camera.position, "z", 0, 100);
-
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   const renderer = new THREE.WebGLRenderer();
@@ -57,8 +52,10 @@ function init() {
   renderer.setClearColor("rgb(120, 120, 120)"); //this is fog
 
   document.getElementById("webgl").appendChild(renderer.domElement);
-  update(renderer, scene, camera);
 
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  update(renderer, scene, camera, controls);
   return scene;
 }
 
@@ -105,7 +102,7 @@ function getPlane(size) {
   return mesh;
 }
 
-function update(renderer, scene, camera) {
+function update(renderer, scene, camera, controls) {
   renderer.render(scene, camera);
 
   //   var plane = scene.getObjectByName("plane-1");
@@ -116,8 +113,10 @@ function update(renderer, scene, camera) {
   //     child.scale.x += 0.001;
   //   });
 
+  controls.update();
+
   requestAnimationFrame(function() {
-    update(renderer, scene, camera);
+    update(renderer, scene, camera, controls);
   });
 }
 

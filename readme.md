@@ -9,3 +9,7 @@ Point light
 ## dat.gui
 
 https://github.com/dataarts/dat.gui
+
+## More libraries
+
+three.js-master\examples\js\controls\
