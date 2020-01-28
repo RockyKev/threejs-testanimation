@@ -13,8 +13,8 @@ function init() {
   camera.position.y = 1;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  const particleGeo = new THREE.Geometry();
-  const particleMat = new THREE.PointsMaterial({
+  var particleGeo = new THREE.Geometry();
+  var particleMat = new THREE.PointsMaterial({
     color: "rgb(255, 255, 255)",
     size: 1,
     map: new THREE.TextureLoader().load("/assets/textures/particle.jpg"),
@@ -23,10 +23,10 @@ function init() {
     depthWrite: false
   });
 
-  const particleCount = 20000;
-  const particleDistance = 100;
+  var particleCount = 20000;
+  var particleDistance = 100;
 
-  for (let i = 0; i < particleCount; i++) {
+  for (var i = 0; i < particleCount; i++) {
     var posX = (Math.random() - 0.5) * particleDistance;
     var posY = (Math.random() - 0.5) * particleDistance;
     var posZ = (Math.random() - 0.5) * particleDistance;
@@ -35,9 +35,7 @@ function init() {
     particleGeo.vertices.push(particle);
   }
 
-  let particleSystem = new THREE.Points(particleGeo, particleMat);
-
-  particleSystem.name = "particleSystem";
+  var particleSystem = new THREE.Points(particleGeo, particleMat);
   scene.add(particleSystem);
 
   // renderer
@@ -58,29 +56,6 @@ function init() {
 function update(renderer, scene, camera, controls) {
   controls.update();
   renderer.render(scene, camera);
-
-  let particleSystem = scene.getObjectByName("particleSystem");
-
-  particleSystem.rotation.y += 0.005;
-
-  particleSystem.geometry.vertices.forEach(function(particle) {
-    particle.x += (Math.random() - 1) * 0.1;
-    particle.y += (Math.random() - 0.75) * 0.1;
-    particle.z += Math.random() * 0.1;
-
-    if (particle.x < -50) {
-      particle.x = 50;
-    }
-
-    if (particle.y < -50) {
-      particle.y = 50;
-    }
-    if (particle.z < -50 || particle.z > 50) {
-      particle.z = 50;
-    }
-  });
-
-  particleSystem.geometry.verticesNeedUpdate = true;
 
   requestAnimationFrame(function() {
     update(renderer, scene, camera, controls);
