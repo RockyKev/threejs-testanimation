@@ -1,6 +1,7 @@
 function init() {
   const scene = new THREE.Scene();
   const gui = new dat.GUI(); //datgui library
+  const clock = new THREE.Clock();
 
   const isFogOn = false;
 
@@ -9,13 +10,14 @@ function init() {
   }
 
   const plane = getPlane(30);
-  // const lighting = getPointLight(1);
+  const lighting = getPointLight(1);
   // const lighting = getSpotLight(1);
-  const lighting = getDirectionalLight(1);
+  // const lighting = getDirectionalLight(1);
   const sphere = getSphere(0.05);
   const boxGrid = getBoxGrid(10, 1.5);
   const helper = new THREE.CameraHelper(lighting.shadow.camera);
-  const ambientLighting = getAmbientLight(1);
+  // const ambientLighting = getAmbientLight(1);
+  boxGrid.name = "boxGrid";
 
   plane.name = "plane-1"; //give a name (id) so you can search it with getObjectByName method
 
@@ -35,7 +37,7 @@ function init() {
   lighting.add(sphere);
   scene.add(lighting);
   scene.add(helper);
-  scene.add(ambientLighting);
+  // scene.add(ambientLighting);
 
   gui.add(lighting, "intensity", 0, 10); //variable, method inside, min, and max
   gui.add(lighting.position, "x", 0, 20);
@@ -63,7 +65,7 @@ function init() {
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  update(renderer, scene, camera, controls);
+  update(renderer, scene, camera, controls, clock);
   return scene;
 }
 
@@ -168,7 +170,7 @@ function getDirectionalLight(intensity) {
   return light;
 }
 
-function update(renderer, scene, camera, controls) {
+function update(renderer, scene, camera, controls, clock) {
   renderer.render(scene, camera);
 
   //   var plane = scene.getObjectByName("plane-1");
@@ -179,10 +181,18 @@ function update(renderer, scene, camera, controls) {
   //     child.scale.x += 0.001;
   //   });
 
+  let timeElapse = clock.getElapsedTime();
+
+  let boxGrid = scene.getObjectByName("boxGrid");
+  boxGrid.children.forEach((child, index) => {
+    child.scale.y = (Math.sin(timeElapse * 5 + index) + 1) / 2 + 0.001; //so it has a range of 0.001 to 2);
+    child.position.y = child.scale.y / 2;
+  });
+
   controls.update();
 
   requestAnimationFrame(function() {
-    update(renderer, scene, camera, controls);
+    update(renderer, scene, camera, controls, clock);
   });
 }
 
