@@ -15,12 +15,15 @@ function init() {
   const sphere = getSphere(0.05);
   const boxGrid = getBoxGrid(10, 1.5);
   const helper = new THREE.CameraHelper(lighting.shadow.camera);
+  const ambientLighting = getAmbientLight(1);
 
   plane.name = "plane-1"; //give a name (id) so you can search it with getObjectByName method
 
   //   plane.rotation.x = 90; //THREE uses pi value
   plane.rotation.x = Math.PI / 2; //THREE uses pi value
-  lighting.position.y = 4;
+  lighting.position.x = 13;
+  lighting.position.y = 10;
+  lighting.position.z = 10;
   lighting.intensity = 2;
 
   //two ways to add objects. One is directly to the scene. The other is through parent->child.
@@ -32,6 +35,7 @@ function init() {
   lighting.add(sphere);
   scene.add(lighting);
   scene.add(helper);
+  scene.add(ambientLighting);
 
   gui.add(lighting, "intensity", 0, 10); //variable, method inside, min, and max
   gui.add(lighting.position, "x", 0, 20);
@@ -128,6 +132,12 @@ function getSphere(size) {
 function getPointLight(intensity) {
   const light = new THREE.PointLight(0xfffff, intensity);
   light.castShadow = true;
+
+  return light;
+}
+
+function getAmbientLight(intensity) {
+  const light = new THREE.AmbientLight("rgb(10, 30, 50)", intensity);
 
   return light;
 }
