@@ -9,13 +9,13 @@ function init() {
     scene.fog = new THREE.FogExp2(0xffffff, 0.2);
   }
 
-  const plane = getPlane(30);
+  const plane = getPlane(100);
   const lighting = getPointLight(1);
   // const lighting = getSpotLight(1);
   // const lighting = getDirectionalLight(1);
   const sphere = getSphere(0.05);
-  const boxGrid = getBoxGrid(10, 1.5);
-  const helper = new THREE.CameraHelper(lighting.shadow.camera);
+  const boxGrid = getBoxGrid(20, 2.5);
+  // const helper = new THREE.CameraHelper(lighting.shadow.camera);
   // const ambientLighting = getAmbientLight(1);
   boxGrid.name = "boxGrid";
 
@@ -31,7 +31,7 @@ function init() {
   scene.add(plane);
   lighting.add(sphere);
   scene.add(lighting);
-  scene.add(helper);
+  // scene.add(helper);
   // scene.add(ambientLighting);
 
   const camera = new THREE.PerspectiveCamera(
@@ -42,19 +42,41 @@ function init() {
   );
 
   //adding the camera to a controller - that controls a Z position.
-  const cameraZPosition = new THREE.Group();
-  const cameraYPosition = new THREE.Group();
-  const cameraXPosition = new THREE.Group();
+  const cameraZ_Position = new THREE.Group();
+  const cameraY_Position = new THREE.Group();
+
+  const cameraX_Rotate = new THREE.Group();
+  const cameraY_Rotate = new THREE.Group();
+  const cameraZ_Rotate = new THREE.Group();
+
+  //identify their names
+  cameraZ_Position.name = "cameraZ_Position";
+  cameraY_Position.name = "cameraY_Position";
+
+  cameraX_Rotate.name = "cameraX_Rotate";
+  cameraY_Rotate.name = "cameraY_Rotate";
+  cameraZ_Rotate.name = "cameraZ_Rotate";
 
   //you nestle cameras inside each other
-  cameraZPosition.add(camera);
-  cameraXPosition.add(cameraZPosition);
-  cameraYPosition.add(cameraXPosition);
-  scene.add(cameraYPosition);
+  cameraZ_Rotate.add(camera);
 
-  gui.add(cameraZPosition.position, "z", 0, 100);
-  gui.add(cameraYPosition.position, "y", -Math.PI, Math.PI);
-  gui.add(cameraXPosition.position, "x", -Math.PI, Math.PI);
+  cameraY_Position.add(cameraZ_Rotate);
+  cameraZ_Position.add(cameraY_Position);
+
+  cameraX_Rotate.add(cameraZ_Position);
+  cameraY_Rotate.add(cameraX_Rotate);
+  scene.add(cameraY_Rotate);
+
+  //GUI
+  cameraX_Rotate.rotation.x = -Math.PI / 2;
+  cameraZ_Position.position.y = 1;
+  cameraZ_Position.position.z = 100;
+
+  gui.add(cameraZ_Position.position, "z", 0, 100);
+
+  gui.add(cameraY_Rotate.rotation, "y", -Math.PI, Math.PI);
+  gui.add(cameraX_Rotate.rotation, "x", -Math.PI, Math.PI);
+  gui.add(cameraZ_Rotate.rotation, "z", -Math.PI, Math.PI);
 
   const renderer = new THREE.WebGLRenderer();
   renderer.shadowMap.enabled = true;
@@ -100,12 +122,12 @@ function getBoxGrid(amount, separationMultiplier) {
   var group = new THREE.Group();
 
   for (var i = 0; i < amount; i++) {
-    var obj = getBox(1, 1, 1);
+    var obj = getBox(1, 3, 1);
     obj.position.x = i * separationMultiplier;
     obj.position.y = obj.geometry.parameters.height / 2;
     group.add(obj);
     for (var j = 1; j < amount; j++) {
-      var obj = getBox(1, 1, 1);
+      var obj = getBox(1, 3, 1);
       obj.position.x = i * separationMultiplier;
       obj.position.y = obj.geometry.parameters.height / 2;
       obj.position.z = j * separationMultiplier;
@@ -162,10 +184,13 @@ function getDirectionalLight(intensity) {
   light.castShadow = true;
 
   //default is -5 and 5
-  light.shadow.camera.left = -10;
-  light.shadow.camera.bottom = -10;
-  light.shadow.camera.right = 10;
-  light.shadow.camera.top = 10;
+  light.shadow.camera.left = -40;
+  light.shadow.camera.bottom = -40;
+  light.shadow.camera.right = 40;
+  light.shadow.camera.top = 40;
+
+  light.shadow.mapSize.width = 4096;
+  light.shadow.mapSize.height = 4096;
 
   return light;
 }
@@ -173,21 +198,23 @@ function getDirectionalLight(intensity) {
 function update(renderer, scene, camera, controls, clock) {
   renderer.render(scene, camera);
 
-  //   var plane = scene.getObjectByName("plane-1");
-  //   plane.rotation.y += 0.001;
-  //   plane.rotation.z += 0.001;
-
-  //   scene.traverse(function(child) {
-  //     child.scale.x += 0.001;
-  //   });
-
   let timeElapse = clock.getElapsedTime();
+
+  let cameraZ_Position = scene.getObjectByName("cameraZ_Position");
+  cameraZ_Position.position.z -= 0.25;
+
+  let cameraZ_Rotate = scene.getObjectByName("cameraZ_Rotate");
+  cameraZ_Rotate.rotation.z -=
+    noise.simplex2(timeElapse * 1.5, timeElapse * 1.5) / 2;
+
+  let cameraX_Rotate = scene.getObjectByName("cameraX_Rotate");
+  if (cameraX_Rotate.rotation.x < 0) {
+    cameraX_Rotate.rotation.x += 0.01;
+  }
 
   let boxGrid = scene.getObjectByName("boxGrid");
   boxGrid.children.forEach((child, index) => {
-    // child.scale.y = (Math.sin(timeElapse * 5 + index) + 1) / 2 + 0.001; //so it has a range of 0.001 to 2);
-
-    const x = timeElapse * 1 + index;
+    const x = timeElapse + index;
     child.scale.y = (noise.simplex2(x, x) + 1) / 2 + 0.001; //so it has a range of 0.001 to 2);
 
     child.position.y = child.scale.y / 2;
