@@ -2,7 +2,7 @@ function init() {
   const scene = new THREE.Scene();
   const gui = new dat.GUI();
 
-  // initialize objects
+  // initialize camera
   const lightLeft = getSpotLight(0.4, "rgb(255, 220, 180)");
   const lightRight = getSpotLight(1.25, "rgb(255, 220, 180)");
 
