@@ -1,32 +1,48 @@
 function init() {
-  // scene
   var scene = new THREE.Scene();
   var gui = new dat.GUI();
-  var clock = new THREE.Clock();
 
-  // add geometry
-  var plane = getPlane(50);
-  var directionalLight = getDirectionalLight();
-  var boxGrid = getBoxGrid(20, 2.5);
+  // initialize objects
+  var lightLeft = getSpotLight(0.4, "rgb(255, 220, 180)");
+  var lightRight = getSpotLight(1.25, "rgb(255, 220, 180)");
 
-  plane.name = "plane-1";
-  boxGrid.name = "boxGrid-1";
+  lightLeft.position.x = 6;
+  lightLeft.position.y = 8;
+  lightLeft.position.z = 12;
 
-  // manipulate geometry
-  plane.rotation.x = Math.PI / 2;
-  directionalLight.position.x = 26;
-  directionalLight.position.y = 20;
-  directionalLight.position.z = 20;
+  lightRight.position.x = 50;
+  lightRight.position.y = 14;
+  lightRight.position.z = -6;
 
-  // add geometry to the scene
-  scene.add(plane);
-  scene.add(directionalLight);
-  scene.add(boxGrid);
+  // dat.gui
+  gui.add(lightLeft, "intensity", 0, 10);
+  gui.add(lightLeft.position, "x", -50, 50);
+  gui.add(lightLeft.position, "y", -50, 50);
+  gui.add(lightLeft.position, "z", -50, 50);
 
-  var enableFog = false;
-  if (enableFog) {
-    scene.fog = new THREE.FogExp2("rgb(220, 220, 220)", 0.02);
-  }
+  gui.add(lightRight, "intensity", 0, 10);
+  gui.add(lightRight.position, "x", -50, 50);
+  gui.add(lightRight.position, "y", -50, 50);
+  gui.add(lightRight.position, "z", -50, 50);
+
+  // load the environment map
+  // var path = "/assets/cubemap/outdoor/";
+  // var format = ".jpg";
+  var path = "/assets/cubemap/snow4k/";
+  var format = ".png";
+
+  var fileNames = ["px", "nx", "py", "ny", "pz", "nz"];
+
+  var reflectionCube = new THREE.CubeTextureLoader().load(
+    fileNames.map(function(fileName) {
+      return path + fileName + format;
+    })
+  );
+  scene.background = reflectionCube;
+
+  // add other objects to the scene
+  scene.add(lightLeft);
+  scene.add(lightRight);
 
   // camera
   var camera = new THREE.PerspectiveCamera(
@@ -35,119 +51,106 @@ function init() {
     1, // near clipping plane
     1000 // far clipping plane
   );
-
-  camera.position.z = -60;
-  camera.position.x = 45;
-  camera.position.y = 45;
+  camera.position.z = 20;
+  camera.position.x = 0;
+  camera.position.y = 5;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  // load external geometry
+  var loader = new THREE.OBJLoader();
+  var textureLoader = new THREE.TextureLoader();
+
+  loader.load("/assets/models/head/lee-perry-smith-head-scan.obj", function(
+    object
+  ) {
+    var colorMap = textureLoader.load("/assets/models/head/Face_Color.jpg");
+    var bumpMap = textureLoader.load("/assets/models/head/Face_Disp.jpg");
+    var faceMaterial = getMaterial("standard", "rgb(255, 255, 255)");
+
+    object.traverse(function(child) {
+      if (child.name == "Plane") {
+        child.visible = false;
+      }
+      if (child.name == "Infinite") {
+        child.material = faceMaterial;
+        faceMaterial.roughness = 0.875;
+        faceMaterial.map = colorMap;
+        faceMaterial.bumpMap = bumpMap;
+        faceMaterial.roughnessMap = bumpMap;
+        faceMaterial.metalness = 0;
+        faceMaterial.bumpScale = 0.175;
+      }
+    });
+
+    object.scale.x = 20;
+    object.scale.y = 20;
+    object.scale.z = 20;
+
+    object.position.z = 0;
+    object.position.y = -6;
+    scene.add(object);
+  });
 
   // renderer
   var renderer = new THREE.WebGLRenderer();
-  renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor("rgb(220, 220, 220)");
-  document.getElementById("webgl").appendChild(renderer.domElement);
+  renderer.shadowMap.enabled = true;
 
-  const composer = new THREE.EffectComposer(renderer);
-  const renderPass = new THREE.RenderPass(scene, camera);
-  composer.addPass(renderPass);
-
-  const vignetteEffect = new THREE.ShaderPass(THREE.VignetteShader);
-  vignetteEffect.renderToScreen = true;
-  vignetteEffect.uniforms["darkness"].value = 2;
-  composer.addPass(vignetteEffect);
-
-  const rgbShiftShader = new THREE.ShaderPass(THREE.RGBShiftShader);
-  rgbShiftShader.uniforms["amount"].value = 0.012;
-  rgbShiftShader.renderToScreen = true;
-  composer.addPass(rgbShiftShader);
-
-  // controls
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  update(composer, scene, camera, controls, clock);
+  document.getElementById("webgl").appendChild(renderer.domElement);
+
+  update(renderer, scene, camera, controls);
 
   return scene;
 }
 
-function getDirectionalLight() {
-  var light = new THREE.DirectionalLight(0xffffff, 1.5);
+function getMaterial(type, color) {
+  var selectedMaterial;
+  var materialOptions = {
+    color: color === undefined ? "rgb(255, 255, 255)" : color
+  };
+
+  switch (type) {
+    case "basic":
+      selectedMaterial = new THREE.MeshBasicMaterial(materialOptions);
+      break;
+    case "lambert":
+      selectedMaterial = new THREE.MeshLambertMaterial(materialOptions);
+      break;
+    case "phong":
+      selectedMaterial = new THREE.MeshPhongMaterial(materialOptions);
+      break;
+    case "standard":
+      selectedMaterial = new THREE.MeshStandardMaterial(materialOptions);
+      break;
+    default:
+      selectedMaterial = new THREE.MeshBasicMaterial(materialOptions);
+      break;
+  }
+
+  return selectedMaterial;
+}
+
+function getSpotLight(intensity, color) {
+  color = color === undefined ? "rgb(255, 255, 255)" : color;
+  var light = new THREE.SpotLight(color, intensity);
   light.castShadow = true;
-  var shadowMapSize = 30;
+  light.penumbra = 0.5;
 
   //Set up shadow properties for the light
-  light.shadow.mapSize.width = 2048;
-  light.shadow.mapSize.height = 2048;
-
-  light.shadow.camera.left = -shadowMapSize;
-  light.shadow.camera.bottom = -shadowMapSize;
-  light.shadow.camera.right = shadowMapSize;
-  light.shadow.camera.top = shadowMapSize;
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+  light.shadow.bias = 0.001;
 
   return light;
 }
 
-function getBox(w, h, d) {
-  var geometry = new THREE.BoxGeometry(w, h, d);
-  var material = new THREE.MeshPhongMaterial({
-    color: "rgb(120, 120, 120)"
-  });
-  var obj = new THREE.Mesh(geometry, material);
-  obj.castShadow = true;
-
-  return obj;
-}
-
-function getBoxGrid(amount, separationMultiplier) {
-  var group = new THREE.Group();
-
-  for (var i = 0; i < amount; i++) {
-    var obj = getBox(1, 2.5, 1);
-    obj.position.x = i * separationMultiplier;
-    obj.position.y = obj.geometry.parameters.height / 2;
-    group.add(obj);
-    for (var j = 1; j < amount; j++) {
-      var obj = getBox(1, 2.5, 1);
-      obj.position.x = i * separationMultiplier;
-      obj.position.y = obj.geometry.parameters.height / 2;
-      obj.position.z = j * separationMultiplier;
-      group.add(obj);
-    }
-  }
-
-  group.position.x = -(separationMultiplier * (amount - 1)) / 2;
-  group.position.z = -(separationMultiplier * (amount - 1)) / 2;
-
-  return group;
-}
-
-function getPlane(size) {
-  var geometry = new THREE.PlaneGeometry(size, size);
-  var material = new THREE.MeshPhongMaterial({
-    color: "rgb(120, 120, 120)",
-    side: THREE.DoubleSide
-  });
-  var obj = new THREE.Mesh(geometry, material);
-  obj.receiveShadow = true;
-
-  return obj;
-}
-
-function update(renderer, scene, camera, controls, clock) {
-  renderer.render(scene, camera);
+function update(renderer, scene, camera, controls) {
   controls.update();
-  var timeElapsed = clock.getElapsedTime();
-
-  var boxGrid = scene.getObjectByName("boxGrid-1");
-  boxGrid.children.forEach(function(child, index) {
-    var noiseAmount =
-      noise.simplex2(timeElapsed + index, timeElapsed + index) + 1;
-    child.scale.y = noiseAmount;
-    child.position.y = (child.scale.y / 2) * child.geometry.parameters.height;
-  });
-
+  renderer.render(scene, camera);
   requestAnimationFrame(function() {
-    update(renderer, scene, camera, controls, clock);
+    update(renderer, scene, camera, controls);
   });
 }
 
