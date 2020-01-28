@@ -26,9 +26,9 @@ function init() {
   gui.add(lightRight.position, "z", -50, 50);
 
   // load the environment map
-  // var path = "/assets/cubemap/outdoor/";
+  // var path = "./assets/cubemap/outdoor/";
   // var format = ".jpg";
-  var path = "/assets/cubemap/snow4k/";
+  var path = "./assets/cubemap/snow4k/";
   var format = ".png";
 
   var fileNames = ["px", "nx", "py", "ny", "pz", "nz"];
@@ -60,11 +60,11 @@ function init() {
   var loader = new THREE.OBJLoader();
   var textureLoader = new THREE.TextureLoader();
 
-  loader.load("/assets/models/head/lee-perry-smith-head-scan.obj", function(
+  loader.load("./assets/models/head/lee-perry-smith-head-scan.obj", function(
     object
   ) {
-    var colorMap = textureLoader.load("/assets/models/head/Face_Color.jpg");
-    var bumpMap = textureLoader.load("/assets/models/head/Face_Disp.jpg");
+    var colorMap = textureLoader.load("./assets/models/head/Face_Color.jpg");
+    var bumpMap = textureLoader.load("./assets/models/head/Face_Disp.jpg");
     var faceMaterial = getMaterial("standard", "rgb(255, 255, 255)");
 
     object.traverse(function(child) {
