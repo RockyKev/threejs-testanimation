@@ -1,11 +1,8 @@
-// console.log(THREE);
-
 function init() {
   const scene = new THREE.Scene();
-
   const gui = new dat.GUI(); //datgui library
 
-  var isFogOn = false;
+  const isFogOn = false;
 
   if (isFogOn) {
     scene.fog = new THREE.FogExp2(0xffffff, 0.2);
@@ -24,9 +21,6 @@ function init() {
   pointLight.position.y = 2;
   pointLight.intensity = 2;
 
-  gui.add(pointLight, "intensity", 0, 10); //variable, method inside, min, and max
-  gui.add(pointLight.position, "y", 0, 5);
-
   //two ways to add objects. One is directly to the scene. The other is through parent->child.
   //   scene.add(box);
   //   plane.add(box);
@@ -35,6 +29,9 @@ function init() {
   scene.add(plane);
   pointLight.add(sphere);
   scene.add(pointLight);
+
+  gui.add(pointLight, "intensity", 0, 10); //variable, method inside, min, and max
+  gui.add(pointLight.position, "y", 0, 5);
 
   const camera = new THREE.PerspectiveCamera(
     45,
@@ -48,6 +45,7 @@ function init() {
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   const renderer = new THREE.WebGLRenderer();
+  renderer.shadowMap.enabled = true;
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor("rgb(120, 120, 120)"); //this is fog
 
@@ -59,12 +57,6 @@ function init() {
   return scene;
 }
 
-function getPointLight(intensity) {
-  const light = new THREE.PointLight(0xfffff, intensity);
-
-  return light;
-}
-
 function getBox(w, h, d) {
   //mesh (shape and material) Default is Mesh, which has no reflection on lighting
   const geometry = new THREE.BoxGeometry(w, h, d);
@@ -73,6 +65,21 @@ function getBox(w, h, d) {
   });
 
   const mesh = new THREE.Mesh(geometry, material);
+  mesh.castShadow = true;
+
+  return mesh;
+}
+
+function getPlane(size) {
+  //mesh (shape and material) Default is Mesh, which has no reflection on lighting
+  const geometry = new THREE.PlaneGeometry(size, size);
+  const material = new THREE.MeshPhongMaterial({
+    color: "rgb(120,120,120)",
+    side: THREE.DoubleSide
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.receiveShadow = true;
 
   return mesh;
 }
@@ -89,17 +96,11 @@ function getSphere(size) {
   return mesh;
 }
 
-function getPlane(size) {
-  //mesh (shape and material) Default is Mesh, which has no reflection on lighting
-  const geometry = new THREE.PlaneGeometry(size, size);
-  const material = new THREE.MeshPhongMaterial({
-    color: "rgb(120,120,120)",
-    side: THREE.DoubleSide
-  });
+function getPointLight(intensity) {
+  const light = new THREE.PointLight(0xfffff, intensity);
+  light.castShadow = true;
 
-  const mesh = new THREE.Mesh(geometry, material);
-
-  return mesh;
+  return light;
 }
 
 function update(renderer, scene, camera, controls) {
@@ -121,3 +122,5 @@ function update(renderer, scene, camera, controls) {
 }
 
 var scene = init();
+
+// console.log(THREE);
