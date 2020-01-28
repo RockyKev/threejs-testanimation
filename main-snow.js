@@ -8,27 +8,32 @@ function init() {
     1, // near clipping plane
     1000 // far clipping plane
   );
-  camera.position.z = 30;
+  camera.position.z = 0;
   camera.position.x = 0;
-  camera.position.y = 20;
+  camera.position.y = 1;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+  const particleGeo = new THREE.Geometry();
   const particleMat = new THREE.PointsMaterial({
     color: "rgb(255, 255, 255)",
-    size: 0.25,
+    size: 1,
     map: new THREE.TextureLoader().load("/assets/textures/particle.jpg"),
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false
   });
 
-  const particleGeo = new THREE.SphereGeometry(10, 64, 64); //radius, width, height
+  const particleCount = 20000;
+  const particleDistance = 100;
 
-  particleGeo.vertices.forEach(function(vertex) {
-    vertex.x += Math.random() - 0.5;
-    vertex.y += Math.random() - 0.5;
-    vertex.z += Math.random() - 0.5;
-  });
+  for (let i = 0; i < particleCount; i++) {
+    var posX = (Math.random() - 0.5) * particleDistance;
+    var posY = (Math.random() - 0.5) * particleDistance;
+    var posZ = (Math.random() - 0.5) * particleDistance;
+    var particle = new THREE.Vector3(posX, posY, posZ);
+
+    particleGeo.vertices.push(particle);
+  }
 
   let particleSystem = new THREE.Points(particleGeo, particleMat);
 
@@ -55,6 +60,27 @@ function update(renderer, scene, camera, controls) {
   renderer.render(scene, camera);
 
   let particleSystem = scene.getObjectByName("particleSystem");
+
+  particleSystem.rotation.y += 0.005;
+
+  particleSystem.geometry.vertices.forEach(function(particle) {
+    particle.x += (Math.random() - 1) * 0.1;
+    particle.y += (Math.random() - 0.75) * 0.1;
+    particle.z += Math.random() * 0.1;
+
+    if (particle.x < -50) {
+      particle.x = 50;
+    }
+
+    if (particle.y < -50) {
+      particle.y = 50;
+    }
+    if (particle.z < -50 || particle.z > 50) {
+      particle.z = 50;
+    }
+  });
+
+  particleSystem.geometry.verticesNeedUpdate = true;
 
   requestAnimationFrame(function() {
     update(renderer, scene, camera, controls);
