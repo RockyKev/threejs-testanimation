@@ -19,13 +19,18 @@ function init() {
   // const ambientLighting = getAmbientLight(1);
   boxGrid.name = "boxGrid";
 
-  plane.name = "plane-1";
+  plane.name = "plane-1"; //give a name (id) so you can search it with getObjectByName method
 
+  //   plane.rotation.x = 90; //THREE uses pi value
   plane.rotation.x = Math.PI / 2; //THREE uses pi value
   lighting.position.x = 13;
   lighting.position.y = 10;
   lighting.position.z = 10;
   lighting.intensity = 2;
+
+  //two ways to add objects. One is directly to the scene. The other is through parent->child.
+  //   scene.add(box);
+  //   plane.add(box);
 
   scene.add(boxGrid);
   scene.add(plane);
@@ -34,6 +39,12 @@ function init() {
   scene.add(helper);
   // scene.add(ambientLighting);
 
+  gui.add(lighting, "intensity", 0, 10); //variable, method inside, min, and max
+  gui.add(lighting.position, "x", 0, 20);
+  gui.add(lighting.position, "y", 0, 20);
+  gui.add(lighting.position, "z", 0, 20);
+  // gui.add(lighting, "penumbra", 0, 1); //only for spotlight
+
   const camera = new THREE.PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
@@ -41,20 +52,27 @@ function init() {
     1000
   );
 
-  //adding the camera to a controller - that controls a Z position.
-  const cameraZPosition = new THREE.Group();
-  const cameraYPosition = new THREE.Group();
-  const cameraXPosition = new THREE.Group();
+  // const camCoords = {
+  //   left: -15,
+  //   right: 15,
+  //   top: 15,
+  //   bottom: -15,
+  //   near: 1,
+  //   far: 1000
+  // };
+  // const camera = new THREE.OrthographicCamera(
+  //   camCoords.left,
+  //   camCoords.right,
+  //   camCoords.top,
+  //   camCoords.bottom,
+  //   camCoords.near,
+  //   camCoords.far
+  // ); //left, right, top, bottom // near & far
 
-  //you nestle cameras inside each other
-  cameraZPosition.add(camera);
-  cameraXPosition.add(cameraZPosition);
-  cameraYPosition.add(cameraXPosition);
-  scene.add(cameraYPosition);
-
-  gui.add(cameraZPosition.position, "z", 0, 100);
-  gui.add(cameraYPosition.position, "y", -Math.PI, Math.PI);
-  gui.add(cameraXPosition.position, "x", -Math.PI, Math.PI);
+  camera.position.x = 1;
+  camera.position.y = 2;
+  camera.position.z = 5;
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   const renderer = new THREE.WebGLRenderer();
   renderer.shadowMap.enabled = true;
@@ -201,3 +219,5 @@ function update(renderer, scene, camera, controls, clock) {
 }
 
 var scene = init();
+
+// console.log(THREE);
