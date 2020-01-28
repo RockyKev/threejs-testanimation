@@ -51,6 +51,24 @@ function init() {
     1,
     1000
   );
+
+  // const camCoords = {
+  //   left: -15,
+  //   right: 15,
+  //   top: 15,
+  //   bottom: -15,
+  //   near: 1,
+  //   far: 1000
+  // };
+  // const camera = new THREE.OrthographicCamera(
+  //   camCoords.left,
+  //   camCoords.right,
+  //   camCoords.top,
+  //   camCoords.bottom,
+  //   camCoords.near,
+  //   camCoords.far
+  // ); //left, right, top, bottom // near & far
+
   camera.position.x = 1;
   camera.position.y = 2;
   camera.position.z = 5;
