@@ -1,18 +1,45 @@
 function init() {
   var scene = new THREE.Scene();
-  let clock = new THREE.Clock();
+  var gui = new dat.GUI();
 
   // initialize objects
-  var planeMaterial = getMaterial("basic", "rgb(255, 255, 255)");
-  var plane = getPlane(planeMaterial, 30, 60);
-  plane.name = "plane-1";
+  var lightLeft = getSpotLight(0.4, "rgb(255, 220, 180)");
+  var lightRight = getSpotLight(1.25, "rgb(255, 220, 180)");
 
-  // manipulate objects
-  plane.rotation.x = Math.PI / 2;
-  plane.rotation.z = Math.PI / 4;
+  lightLeft.position.x = 6;
+  lightLeft.position.y = 8;
+  lightLeft.position.z = 12;
 
-  // add objects to the scene
-  scene.add(plane);
+  lightRight.position.x = 50;
+  lightRight.position.y = 14;
+  lightRight.position.z = -6;
+
+  // dat.gui
+  gui.add(lightLeft, "intensity", 0, 10);
+  gui.add(lightLeft.position, "x", -50, 50);
+  gui.add(lightLeft.position, "y", -50, 50);
+  gui.add(lightLeft.position, "z", -50, 50);
+
+  gui.add(lightRight, "intensity", 0, 10);
+  gui.add(lightRight.position, "x", -50, 50);
+  gui.add(lightRight.position, "y", -50, 50);
+  gui.add(lightRight.position, "z", -50, 50);
+
+  // load the environment map
+  var path = "/assets/cubemap/";
+  var format = ".jpg";
+  var fileNames = ["px", "nx", "py", "ny", "pz", "nz"];
+
+  var reflectionCube = new THREE.CubeTextureLoader().load(
+    fileNames.map(function(fileName) {
+      return path + fileName + format;
+    })
+  );
+  scene.background = reflectionCube;
+
+  // add other objects to the scene
+  scene.add(lightLeft);
+  scene.add(lightRight);
 
   // camera
   var camera = new THREE.PerspectiveCamera(
@@ -26,34 +53,59 @@ function init() {
   camera.position.y = 5;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+  // load external geometry
+  var loader = new THREE.OBJLoader();
+  var textureLoader = new THREE.TextureLoader();
+
+  loader.load("/assets/models/head/lee-perry-smith-head-scan.obj", function(
+    object
+  ) {
+    var colorMap = textureLoader.load("/assets/models/head/Face_Color.jpg");
+    var bumpMap = textureLoader.load("/assets/models/head/Face_Disp.jpg");
+    var faceMaterial = getMaterial("standard", "rgb(255, 255, 255)");
+
+    object.traverse(function(child) {
+      if (child.name == "Plane") {
+        child.visible = false;
+      }
+      if (child.name == "Infinite") {
+        child.material = faceMaterial;
+        faceMaterial.roughness = 0.875;
+        faceMaterial.map = colorMap;
+        faceMaterial.bumpMap = bumpMap;
+        faceMaterial.roughnessMap = bumpMap;
+        faceMaterial.metalness = 0;
+        faceMaterial.bumpScale = 0.175;
+      }
+    });
+
+    object.scale.x = 20;
+    object.scale.y = 20;
+    object.scale.z = 20;
+
+    object.position.z = 0;
+    object.position.y = -2;
+    scene.add(object);
+  });
+
   // renderer
   var renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
-  document.getElementById("webgl").appendChild(renderer.domElement);
 
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  update(renderer, scene, camera, controls, clock);
+  document.getElementById("webgl").appendChild(renderer.domElement);
+
+  update(renderer, scene, camera, controls);
 
   return scene;
-}
-
-function getPlane(material, size, segments) {
-  var geometry = new THREE.PlaneGeometry(size, size, segments, segments);
-  material.side = THREE.DoubleSide;
-  var obj = new THREE.Mesh(geometry, material);
-  obj.receiveShadow = true;
-  obj.castShadow = true;
-
-  return obj;
 }
 
 function getMaterial(type, color) {
   var selectedMaterial;
   var materialOptions = {
-    color: color === undefined ? "rgb(255, 255, 255)" : color,
-    wireframe: true
+    color: color === undefined ? "rgb(255, 255, 255)" : color
   };
 
   switch (type) {
@@ -77,22 +129,25 @@ function getMaterial(type, color) {
   return selectedMaterial;
 }
 
-function update(renderer, scene, camera, controls, clock) {
+function getSpotLight(intensity, color) {
+  color = color === undefined ? "rgb(255, 255, 255)" : color;
+  var light = new THREE.SpotLight(color, intensity);
+  light.castShadow = true;
+  light.penumbra = 0.5;
+
+  //Set up shadow properties for the light
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+  light.shadow.bias = 0.001;
+
+  return light;
+}
+
+function update(renderer, scene, camera, controls) {
   controls.update();
-
-  const elapsedTime = clock.getElapsedTime();
-
-  const plane = scene.getObjectByName("plane-1");
-  const planeGeo = plane.geometry;
-  planeGeo.vertices.forEach((vertex, index) => {
-    vertex.z += Math.sin(elapsedTime + index * 0.1) * 0.005;
-  });
-
-  planeGeo.verticesNeedUpdate = true;
-
   renderer.render(scene, camera);
   requestAnimationFrame(function() {
-    update(renderer, scene, camera, controls, clock);
+    update(renderer, scene, camera, controls);
   });
 }
 

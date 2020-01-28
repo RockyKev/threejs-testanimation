@@ -42,3 +42,16 @@ https://github.com/josephg/noisejs
 ### Tween JS
 
 https://github.com/tweenjs/tween.js/
+
+### 3d Modeling places to find
+
+Turbo Squid
+SketchFab
+clara.io
+
+Pay attention to license, file size, model mesh density, file formats, availability of textures.
+
+3DS supports = FBX, OBJ, and STL
+
+you have to use the coorespinding loader examples
+three.js-master\examples\js\loaders\
