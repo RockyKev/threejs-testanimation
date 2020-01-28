@@ -1,10 +1,10 @@
 function init() {
-  var scene = new THREE.Scene();
-  var gui = new dat.GUI();
+  const scene = new THREE.Scene();
+  const gui = new dat.GUI();
 
   // initialize objects
-  var lightLeft = getSpotLight(0.4, "rgb(255, 220, 180)");
-  var lightRight = getSpotLight(1.25, "rgb(255, 220, 180)");
+  const lightLeft = getSpotLight(0.4, "rgb(255, 220, 180)");
+  const lightRight = getSpotLight(1.25, "rgb(255, 220, 180)");
 
   lightLeft.position.x = 6;
   lightLeft.position.y = 8;
@@ -26,14 +26,14 @@ function init() {
   gui.add(lightRight.position, "z", -50, 50);
 
   // load the environment map
-  // var path = "./assets/cubemap/outdoor/";
-  // var format = ".jpg";
-  var path = "./assets/cubemap/snow4k/";
-  var format = ".png";
+  // const path = "./assets/cubemap/outdoor/";
+  // const format = ".jpg";
+  const path = "./assets/cubemap/snow4k/";
+  const format = ".png";
 
-  var fileNames = ["px", "nx", "py", "ny", "pz", "nz"];
+  const fileNames = ["px", "nx", "py", "ny", "pz", "nz"];
 
-  var reflectionCube = new THREE.CubeTextureLoader().load(
+  const reflectionCube = new THREE.CubeTextureLoader().load(
     fileNames.map(function(fileName) {
       return path + fileName + format;
     })
@@ -45,7 +45,7 @@ function init() {
   scene.add(lightRight);
 
   // camera
-  var camera = new THREE.PerspectiveCamera(
+  const camera = new THREE.PerspectiveCamera(
     45, // field of view
     window.innerWidth / window.innerHeight, // aspect ratio
     1, // near clipping plane
@@ -57,15 +57,15 @@ function init() {
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // load external geometry
-  var loader = new THREE.OBJLoader();
-  var textureLoader = new THREE.TextureLoader();
+  const loader = new THREE.OBJLoader();
+  const textureLoader = new THREE.TextureLoader();
 
   loader.load("./assets/models/head/lee-perry-smith-head-scan.obj", function(
     object
   ) {
-    var colorMap = textureLoader.load("./assets/models/head/Face_Color.jpg");
-    var bumpMap = textureLoader.load("./assets/models/head/Face_Disp.jpg");
-    var faceMaterial = getMaterial("standard", "rgb(255, 255, 255)");
+    const colorMap = textureLoader.load("./assets/models/head/Face_Color.jpg");
+    const bumpMap = textureLoader.load("./assets/models/head/Face_Disp.jpg");
+    const faceMaterial = getMaterial("standard", "rgb(255, 255, 255)");
 
     object.traverse(function(child) {
       if (child.name == "Plane") {
@@ -92,11 +92,11 @@ function init() {
   });
 
   // renderer
-  var renderer = new THREE.WebGLRenderer();
+  const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
 
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   document.getElementById("webgl").appendChild(renderer.domElement);
 
@@ -106,8 +106,8 @@ function init() {
 }
 
 function getMaterial(type, color) {
-  var selectedMaterial;
-  var materialOptions = {
+  let selectedMaterial;
+  const materialOptions = {
     color: color === undefined ? "rgb(255, 255, 255)" : color
   };
 
@@ -134,7 +134,7 @@ function getMaterial(type, color) {
 
 function getSpotLight(intensity, color) {
   color = color === undefined ? "rgb(255, 255, 255)" : color;
-  var light = new THREE.SpotLight(color, intensity);
+  const light = new THREE.SpotLight(color, intensity);
   light.castShadow = true;
   light.penumbra = 0.5;
 
@@ -154,4 +154,4 @@ function update(renderer, scene, camera, controls) {
   });
 }
 
-var scene = init();
+const scene = init();
