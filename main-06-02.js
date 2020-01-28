@@ -1,6 +1,6 @@
 function init() {
   var scene = new THREE.Scene();
-  let clock = new THREE.Clock();
+  var clock = new THREE.Clock();
 
   // initialize objects
   var planeMaterial = getMaterial("basic", "rgb(255, 255, 255)");
@@ -80,14 +80,13 @@ function getMaterial(type, color) {
 function update(renderer, scene, camera, controls, clock) {
   controls.update();
 
-  const elapsedTime = clock.getElapsedTime();
+  var elapsedTime = clock.getElapsedTime();
 
-  const plane = scene.getObjectByName("plane-1");
-  const planeGeo = plane.geometry;
-  planeGeo.vertices.forEach((vertex, index) => {
+  var plane = scene.getObjectByName("plane-1");
+  var planeGeo = plane.geometry;
+  planeGeo.vertices.forEach(function(vertex, index) {
     vertex.z += Math.sin(elapsedTime + index * 0.1) * 0.005;
   });
-
   planeGeo.verticesNeedUpdate = true;
 
   renderer.render(scene, camera);
