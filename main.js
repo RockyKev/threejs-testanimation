@@ -185,7 +185,11 @@ function update(renderer, scene, camera, controls, clock) {
 
   let boxGrid = scene.getObjectByName("boxGrid");
   boxGrid.children.forEach((child, index) => {
-    child.scale.y = (Math.sin(timeElapse * 5 + index) + 1) / 2 + 0.001; //so it has a range of 0.001 to 2);
+    // child.scale.y = (Math.sin(timeElapse * 5 + index) + 1) / 2 + 0.001; //so it has a range of 0.001 to 2);
+
+    const x = timeElapse * 1 + index;
+    child.scale.y = (noise.simplex2(x, x) + 1) / 2 + 0.001; //so it has a range of 0.001 to 2);
+
     child.position.y = child.scale.y / 2;
   });
 

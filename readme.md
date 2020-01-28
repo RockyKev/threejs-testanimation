@@ -6,10 +6,20 @@ https://www.lynda.com/JavaScript-tutorials/Create-ground-plane/586668/633294-4.h
 
 Point light
 
-## dat.gui
+## More libraries
+
+### dat.gui
+
+This is to create that widget nav bar to move variables around
 
 https://github.com/dataarts/dat.gui
 
-## More libraries
+### This is to allow you to rotate your camera around
 
+orbit
 three.js-master\examples\js\controls\
+
+### Math - Like Sin. It randomizes and creates a noise.
+
+perlin.js
+https://github.com/josephg/noisejs
