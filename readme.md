@@ -21,6 +21,16 @@ roughnessMap = more texture
 
 Environment Map = It uses cubemap -> https://www.oreilly.com/library/view/unity-virtual-reality/9781788478809/assets/78ce7543-9205-4ef8-9d59-52b9e69e89d8.jpg
 
+## Post-Processing
+
+Shader = code that describes how GPU solves it. It's like Instagram.
+
+GLSL is a high level shading langauge based on C programming.
+
+examples/js/postprocessing
+
+Effect Stack
+
 ## More libraries
 
 ### dat.gui
@@ -59,3 +69,7 @@ three.js-master\examples\js\loaders\
 ### stats.js
 
 To check performance.
+
+### EffectComposer
+
+examples/js/postprocessing
