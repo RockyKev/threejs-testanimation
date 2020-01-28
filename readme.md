@@ -55,3 +55,7 @@ Pay attention to license, file size, model mesh density, file formats, availabil
 
 you have to use the coorespinding loader examples
 three.js-master\examples\js\loaders\
+
+### stats.js
+
+To check performance.

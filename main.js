@@ -1,5 +1,6 @@
 function init() {
   var scene = new THREE.Scene();
+  const stats = new Stats();
 
   // camera
   var camera = new THREE.PerspectiveCamera(
@@ -31,8 +32,8 @@ function init() {
   });
 
   let particleSystem = new THREE.Points(particleGeo, particleMat);
-
   particleSystem.name = "particleSystem";
+
   scene.add(particleSystem);
 
   // renderer
@@ -44,20 +45,23 @@ function init() {
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   document.getElementById("webgl").appendChild(renderer.domElement);
+  document.body.appendChild(stats.dom);
 
-  update(renderer, scene, camera, controls);
+  update(renderer, scene, camera, controls, stats);
 
   return scene;
 }
 
-function update(renderer, scene, camera, controls) {
+function update(renderer, scene, camera, controls, stats) {
   controls.update();
   renderer.render(scene, camera);
+  stats.update();
 
   let particleSystem = scene.getObjectByName("particleSystem");
+  particleSystem.rotation.y += 0.005;
 
   requestAnimationFrame(function() {
-    update(renderer, scene, camera, controls);
+    update(renderer, scene, camera, controls, stats);
   });
 }
 
