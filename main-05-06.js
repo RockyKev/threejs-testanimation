@@ -25,10 +25,10 @@ function init() {
   lightRight.position.z = -4;
 
   // manipulate materials
-  //load cubemap
-  const path = "/assets/cubemap/";
-  const format = ".jpg";
-  const urls = [
+  // load the cube map
+  var path = "/assets/cubemap/";
+  var format = ".jpg";
+  var urls = [
     path + "px" + format,
     path + "nx" + format,
     path + "py" + format,
@@ -36,32 +36,27 @@ function init() {
     path + "pz" + format,
     path + "nz" + format
   ];
-  const reflectionCube = new THREE.CubeTextureLoader().load(urls);
+  var reflectionCube = new THREE.CubeTextureLoader().load(urls);
   reflectionCube.format = THREE.RGBFormat;
 
   scene.background = reflectionCube;
 
-  //load plane materails
-  const loader = new THREE.TextureLoader();
-
+  var loader = new THREE.TextureLoader();
   planeMaterial.map = loader.load("/assets/textures/concrete.jpg");
   planeMaterial.bumpMap = loader.load("/assets/textures/concrete.jpg");
   planeMaterial.roughnessMap = loader.load("/assets/textures/concrete.jpg");
-
   planeMaterial.bumpScale = 0.01;
   planeMaterial.metalness = 0.1;
   planeMaterial.roughness = 0.7;
   planeMaterial.envMap = reflectionCube;
-
   sphereMaterial.roughnessMap = loader.load(
     "/assets/textures/fingerprints.jpg"
   );
   sphereMaterial.envMap = reflectionCube;
 
-  let maps = ["map", "bumpMap", "roughnessMap"];
-
+  var maps = ["map", "bumpMap", "roughnessMap"];
   maps.forEach(function(mapName) {
-    const texture = planeMaterial[mapName];
+    var texture = planeMaterial[mapName];
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(15, 15);
@@ -80,12 +75,11 @@ function init() {
   folder2.add(lightRight.position, "y", -5, 15);
   folder2.add(lightRight.position, "z", -5, 15);
 
-  let folder3 = gui.addFolder("materials");
+  var folder3 = gui.addFolder("materials");
   folder3.add(sphereMaterial, "roughness", 0, 1);
   folder3.add(planeMaterial, "roughness", 0, 1);
   folder3.add(sphereMaterial, "metalness", 0, 1);
   folder3.add(planeMaterial, "metalness", 0, 1);
-
   folder3.open();
 
   // add objects to the scene
