@@ -8,30 +8,36 @@ function init() {
     scene.fog = new THREE.FogExp2(0xffffff, 0.2);
   }
 
-  const box = getBox(1, 1, 1);
-  const plane = getPlane(20);
-  const pointLight = getPointLight(1);
+  const plane = getPlane(30);
+  // const lighting = getPointLight(1);
+  // const lighting = getSpotLight(1);
+  const lighting = getDirectionalLight(1);
   const sphere = getSphere(0.05);
+  const boxGrid = getBoxGrid(10, 1.5);
+  const helper = new THREE.CameraHelper(lighting.shadow.camera);
 
   plane.name = "plane-1"; //give a name (id) so you can search it with getObjectByName method
 
-  box.position.y = box.geometry.parameters.height / 2; //originally 0.5. Remember origin is center.
   //   plane.rotation.x = 90; //THREE uses pi value
   plane.rotation.x = Math.PI / 2; //THREE uses pi value
-  pointLight.position.y = 2;
-  pointLight.intensity = 2;
+  lighting.position.y = 4;
+  lighting.intensity = 2;
 
   //two ways to add objects. One is directly to the scene. The other is through parent->child.
   //   scene.add(box);
   //   plane.add(box);
 
-  scene.add(box);
+  scene.add(boxGrid);
   scene.add(plane);
-  pointLight.add(sphere);
-  scene.add(pointLight);
+  lighting.add(sphere);
+  scene.add(lighting);
+  scene.add(helper);
 
-  gui.add(pointLight, "intensity", 0, 10); //variable, method inside, min, and max
-  gui.add(pointLight.position, "y", 0, 5);
+  gui.add(lighting, "intensity", 0, 10); //variable, method inside, min, and max
+  gui.add(lighting.position, "x", 0, 20);
+  gui.add(lighting.position, "y", 0, 20);
+  gui.add(lighting.position, "z", 0, 20);
+  // gui.add(lighting, "penumbra", 0, 1); //only for spotlight
 
   const camera = new THREE.PerspectiveCamera(
     45,
@@ -84,6 +90,29 @@ function getPlane(size) {
   return mesh;
 }
 
+function getBoxGrid(amount, separationMultiplier) {
+  var group = new THREE.Group();
+
+  for (var i = 0; i < amount; i++) {
+    var obj = getBox(1, 1, 1);
+    obj.position.x = i * separationMultiplier;
+    obj.position.y = obj.geometry.parameters.height / 2;
+    group.add(obj);
+    for (var j = 1; j < amount; j++) {
+      var obj = getBox(1, 1, 1);
+      obj.position.x = i * separationMultiplier;
+      obj.position.y = obj.geometry.parameters.height / 2;
+      obj.position.z = j * separationMultiplier;
+      group.add(obj);
+    }
+  }
+
+  group.position.x = -(separationMultiplier * (amount - 1)) / 2;
+  group.position.z = -(separationMultiplier * (amount - 1)) / 2;
+
+  return group;
+}
+
 function getSphere(size) {
   //mesh (shape and material) Default is Mesh, which has no reflection on lighting
   const geometry = new THREE.SphereGeometry(size, 24, 24); //size, width, and height (or how many faces)
@@ -99,6 +128,32 @@ function getSphere(size) {
 function getPointLight(intensity) {
   const light = new THREE.PointLight(0xfffff, intensity);
   light.castShadow = true;
+
+  return light;
+}
+
+function getSpotLight(intensity) {
+  const light = new THREE.SpotLight(0xfffff, intensity);
+  light.castShadow = true;
+
+  light.shadow.bias = 0.001;
+
+  //this affects the shadow blur size. 1024 is the default. More cost performance.
+  light.shadow.mapSize.width = 2048;
+  light.shadow.mapSize.height = 2048;
+
+  return light;
+}
+
+function getDirectionalLight(intensity) {
+  const light = new THREE.DirectionalLight(0xfffff, intensity);
+  light.castShadow = true;
+
+  //default is -5 and 5
+  light.shadow.camera.left = -10;
+  light.shadow.camera.bottom = -10;
+  light.shadow.camera.right = 10;
+  light.shadow.camera.top = 10;
 
   return light;
 }
