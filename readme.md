@@ -23,3 +23,7 @@ three.js-master\examples\js\controls\
 
 perlin.js
 https://github.com/josephg/noisejs
+
+### Tween JS
+
+https://github.com/tweenjs/tween.js/
